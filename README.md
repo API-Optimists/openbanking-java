@@ -64,13 +64,6 @@ Below are configurable property, in the case you want to use your own.
 
 # SDK example setup
 ---
-## Preliminary Steps
-
-1. Browse to the RBS sandbox https://developer.rbs.useinfinite.io/
-2. Register an account and verify email address to login
-3. On the dashboard, click on the pre-created demo app (demo-app-...)
-4. Under APIs -> Version 3.1.0 of CMA9 Accounts API, click 'Request Access'...
-5. Enable 'Allow security' and 'Allow Tpp' to programmatically authorise User consents'
 
 
 ## How to bootup the application
@@ -91,7 +84,10 @@ Below are configurable property, in the case you want to use your own.
 
 7. Download Postman API collections of PISP/AISP open and prod APIs and postman environments from inside the project {openbanking-java-sdk-example/postmancollections} and import all collections.
 
-## AISP Demo
+Directly test the app using UI
+Both should be running.
+
+## AISP Demo with postman collection
 ---
 1. Select environment(sandbox) on the top right in Postman.
 2. Run the first *token* and than *AISP Consent Setup* API from AispSDK collection.
