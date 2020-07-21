@@ -1,0 +1,702 @@
+{
+	"info": {
+		"_postman_id": "d7951433-eab4-4253-8bd8-bfced612d881",
+		"name": "AispSDK",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1.Retrieve access token for AISP Consent",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "65a9f28a-57b8-43db-9895-faf793e85f4d",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"let jsonData = pm.response.json();",
+							"let accessToken = jsonData.access_token;",
+							"pm.environment.set(\"accountRequestAccessToken\", accessToken);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "595c9e90-1ed6-4378-8135-8e7d542106c4",
+						"exec": [
+							"pm.environment.unset(\"accountRequestAccessToken\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"grant_type\":\"client_credentials\",\r\n\"client_id\":\"{{client_id}}\",\r\n\"client_secret\":\"{{client_secret}}\",\r\n\"scope\":\"accounts\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2 .Aisp Consent Setup",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3ab376cb-f127-4ccc-866f-a3ed12f94b74",
+						"exec": [
+							"pm.environment.unset(\"consentId\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "837c6ac2-d3e5-430d-b792-2cc67774674e",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"let jsonData = pm.response.json();",
+							"let accountConsentId = jsonData.Data.ConsentId;",
+							"pm.environment.set(\"consentId\", accountConsentId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{accountRequestAccessToken}}",
+						"type": "text"
+					},
+					{
+						"key": "x-jws-signature",
+						"value": "ignored",
+						"type": "text"
+					},
+					{
+						"key": "x-idempotency-key",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"value": "{{x-fapi-financial-id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"Data\" :{\n\t\"Permissions\" : [\"ReadAccountsBasic\", \"ReadAccountsDetail\", \"ReadBalances\",\n                \"ReadBeneficiariesBasic\", \"ReadBeneficiariesDetail\", \"ReadDirectDebits\",\n                \"ReadProducts\", \"ReadStandingOrdersBasic\", \"ReadStandingOrdersDetail\",\n                \"ReadTransactionsBasic\", \"ReadTransactionsCredits\", \"ReadTransactionsDebits\",\n                \"ReadTransactionsDetail\"]\n                \n},\n\"Risk\": {}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/account-access-consents",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"account-access-consents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3.GetAuthorizeConsentURL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bb00a8f1-23b9-4ea2-bf4d-afb8e27e5778",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "eb6ae892-abdc-42b3-a9e3-102101b8e0f8",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "conten",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/authorization.oauth2?request={{consentId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"authorization.oauth2"
+					],
+					"query": [
+						{
+							"key": "request",
+							"value": "{{consentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4.OBToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "83024f33-771c-4267-af11-f10250dafa5c",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"let jsonData = pm.response.json();",
+							"let accessToken = jsonData.access_token;",
+							"pm.environment.set(\"access_token\", accessToken);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0420d130-1c17-4eaf-a6f5-b3d401963a29",
+						"exec": [
+							"pm.environment.unset(\"access_token\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Code",
+						"value": "2a562ff5-aa71-42d9-82d4-7695d1152586",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"code\":\"35ea3cb0-b223-4a1b-9382-db58ff4bb953\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5.AccountId",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"type": "text",
+						"value": "{{x-fapi-financial-id}}"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "ob.rbs.useinfinite.io",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/accounts/55b16334-bf2c-4443-92e3-29df8182ac18",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"accounts",
+						"55b16334-bf2c-4443-92e3-29df8182ac18"
+					],
+					"query": [
+						{
+							"key": "Authorization",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6.AccountList",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"type": "text",
+						"value": "{{x-fapi-financial-id}}",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/accounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "Authorization",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7.BalancesById",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"type": "text",
+						"value": "{{x-fapi-financial-id}}",
+						"disabled": true
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "ob.rbs.useinfinite.io",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/accounts/55b16334-bf2c-4443-92e3-29df8182ac18/balances",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"accounts",
+						"55b16334-bf2c-4443-92e3-29df8182ac18",
+						"balances"
+					],
+					"query": [
+						{
+							"key": "Authorization",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8.DirectDebitById",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a5ae65f7-4671-4dd4-a3cd-d9d650aadf45",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"value": "{{x-fapi-financial-id}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/accounts/55b16334-bf2c-4443-92e3-29df8182ac18/direct-debits",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"accounts",
+						"55b16334-bf2c-4443-92e3-29df8182ac18",
+						"direct-debits"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9.StandingOrder",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "af72195b-648f-4df3-90b0-38a587b78811",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"value": "{{x-fapi-financial-id}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/accounts/55b16334-bf2c-4443-92e3-29df8182ac18/standing-orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"accounts",
+						"55b16334-bf2c-4443-92e3-29df8182ac18",
+						"standing-orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10.ProductById",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f3b97225-f1f7-4f90-a60c-c0acf791f387",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"value": "{{x-fapi-financial-id}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/accounts/55b16334-bf2c-4443-92e3-29df8182ac18/product",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"accounts",
+						"55b16334-bf2c-4443-92e3-29df8182ac18",
+						"product"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11.List Transactions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3769406b-4fc4-4653-a96c-1c17ace2ec84",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"value": "{{x-fapi-financial-id}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/accounts/55b16334-bf2c-4443-92e3-29df8182ac18/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"accounts",
+						"55b16334-bf2c-4443-92e3-29df8182ac18",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12.List Beneficiaries",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0a351953-a72d-44d1-8a3b-c86706315a5b",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "x-fapi-financial-id",
+						"value": "{{x-fapi-financial-id}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/open-banking/v3.1/aisp/accounts/55b16334-bf2c-4443-92e3-29df8182ac18/beneficiaries",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"open-banking",
+						"v3.1",
+						"aisp",
+						"accounts",
+						"55b16334-bf2c-4443-92e3-29df8182ac18",
+						"beneficiaries"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

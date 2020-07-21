@@ -1,0 +1,18 @@
+# eclipse
+.project
+.settings
+work/
+.springBeans
+.classpath
+# build
+target/
+tomcat.*/
+# idea
+.idea/
+*.ipr
+*.iml
+*.iws
+*.dat
+vf.*
+client-cache.xml
+Seen by Gunjan Dixit at 3:01 PM
